@@ -34,18 +34,28 @@ const studentSchema = new mongoose.Schema({
 });
 const Student = mongoose.model("Student", studentSchema);
 
-app.post("/insert", async (req, res) => {
-  const { name, age, department, rollNo } = req.body;
+app.post("/insert", middleware,insertData);
+function middleware(req, res, next) {
+    let reqData = req.body;
+    if (reqData.rollNo && reqData.age && reqData.department && reqData.name ) {
+        next();
+}
+else {
+        res.send("Missing required Data");
+}
+}
+async function insertData(req, res) {
+    const { name, age, department, rollNo } = req.body;
 
-  const newStudent = new Student({ name, age, department, rollNo,});
+    const newStudent = new Student({ name, age, department, rollNo, });
 
-  try {
-    await newStudent.save();
-    res.status(201).send("Student inserted");
-  } catch (error) {
-    res.status(400).send("Error saving student");
-  }
-});
+    try {
+        await newStudent.save();
+        res.status(201).send("Student inserted");
+    } catch (error) {
+        res.status(400).send("Error saving student");
+    }
+};
 
 app.get('/getAllStudents',async (req,res) => {
     try {
